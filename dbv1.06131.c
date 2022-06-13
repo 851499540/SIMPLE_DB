@@ -1,3 +1,14 @@
+/*
+1.支持插入一行并打印所有行的功能
+  insert 1 cstack foo@bar.com
+2.尚未写入硬盘
+3.单编码表
+  column 	type
+  id 	integer
+  username 	varchar(32)
+  email 	varchar(255)
+*/
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
