@@ -47,7 +47,7 @@ typedef struct {
 
 //输入缓存指针通过函数返回
 InputBuffer* new_input_buffer() {
-  InputBuffer* input_buffer = malloc(sizeof(InputBuffer));
+  InputBuffer* input_buffer = (InputBuffer*)malloc(sizeof(InputBuffer));
   input_buffer->buffer = NULL;
   input_buffer->buffer_length = 0;
   input_buffer->input_length = 0;
@@ -60,7 +60,7 @@ void print_prompt() { printf("db > "); }
 
 void read_input(InputBuffer* input_buffer) {
   ssize_t bytes_read =
-      getline(&(input_buffer->buffer), &(input_buffer->buffer_length), stdin);
+      getline(&(input_buffer->buffer), &(input_buffer->buffer_length), stdin); //输入在此赋予input buffer值
 
   if (bytes_read <= 0) {
     printf("Error reading input\n");
@@ -69,7 +69,8 @@ void read_input(InputBuffer* input_buffer) {
 
   // Ignore trailing newline
   input_buffer->input_length = bytes_read - 1;
-  input_buffer->buffer[bytes_read - 1] = 0;
+  input_buffer->buffer[bytes_read - 1] = 0;// byts_read - 1 = 最后一位;  
+                                           //buffer[] = 0 赋0等于去掉buffer的\n后缀 详见getline.c
 }
 
 void close_input_buffer(InputBuffer* input_buffer) {
@@ -122,6 +123,8 @@ int main(int argc, char* argv[]) {
     print_prompt();
     read_input(input_buffer);
     //元命令单独处理，对数据库的操作(退出数据库)
+    //switch case 对元命令进行判断，都需要continue跳出当前while循环，进行新的while循环
+    //continue不用于跳出switch,break可以跳出switch
     if (input_buffer->buffer[0] == '.'){
       switch (do_meta_command(input_buffer)) {
         case(META_COMMAND_SUCCESS):
@@ -136,10 +139,10 @@ int main(int argc, char* argv[]) {
     Statement statement;
     switch (prepare_statement(input_buffer, &statement)) {
       case (PREPARE_SUCCESS):
-        break;
+        break;//跳出switch
       case (PREPARE_UNRECOGNIZED_STATEMENT):
         printf("Unrecognized keyword at start of '%s' \n",input_buffer->buffer);
-        continue;
+        continue;//跳出while
     }
     //2.具体执行
     execute_statement(&statement);
